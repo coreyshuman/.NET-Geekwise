@@ -79,6 +79,6 @@ In this example, the URL segment `Parameters` is not used. `Name` and `numTimes`
 ##### Microsoft Movie Example
 From here, we will start using the Movie Application example from Microsoft. This will be a good resource for us because of how thoroughly each step of the example is documented. Also, many examples and question-answer posts regarding `ASP.NET MVC` are framed around this project, so that is another good reason to be familiar with it.
 
-We will work  through this example project together. Follow the link below
+We will work  through this example project together. Follow the link below:
 
 URL: http://docs.asp.net/en/latest/tutorials/first-mvc-app/adding-view.html#
