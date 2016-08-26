@@ -1,0 +1,22 @@
+@model MvcMovie.Models.TodoList.TodoItem
+
+
+<div class="form-horizontal">
+    <h4>New Todo Item</h4>
+    <hr />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Content" class="col-md-2 control-label"></label>
+        <div class="col-md-8">
+            <input asp-for="Content" class="form-control" />
+            <span asp-validation-for="Content" class="text-danger" />
+        </div>
+        <div>
+            <input type="button" id="save" value="Save" class="btn btn-primary" />
+            <input type="button" id="cancel" value="Cancel" class="btn btn-default" />
+        </div>
+    </div>
+    @Html.AntiForgeryToken()
+</div>
+
+

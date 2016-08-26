@@ -1,0 +1,141 @@
+@model IEnumerable<MvcMovie.Models.TodoList.TodoItem>
+
+@{
+    ViewData["Title"] = "Todo List";
+}
+
+<h2>Todo List</h2>
+
+<p id="createButton">
+    <input type="button" value="New Todo Item" id="create" class="btn btn-default" />
+</p>
+<div id="createPanel">
+    @await Html.PartialAsync("Create", new MvcMovie.Models.TodoList.TodoItem())
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Content)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        @await Html.PartialAsync("ListItem", item)
+}
+    </tbody>
+</table>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+    Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        (function ($) {
+            hideCreatePanel(); // hide create panel immediately
+        })(jQuery);
+
+        $(function () { // setup button handlers on load
+            $('#save').on('click', submitCreate);
+            $('#cancel').on('click', hideCreatePanel);
+            $('#create').on('click', showCreatePanel);
+            // mark completed entries
+            $('tr[data-complete="True"]').each(function () {
+                console.log(this)
+                $(this).addClass("completed");
+            });
+        });
+
+        function showCreatePanel() {
+            $('#createPanel').show();
+            $('#createButton').hide();
+        }
+
+        function hideCreatePanel() {
+            $('#createPanel').hide();
+            $('#createButton').show();
+            $('#Content').val(''); // clear content textbox
+        }
+
+        function submitCreate() {
+            $.ajax({
+                url: '/Todo/Create',
+                data: {
+                    Content: $('#Content').val(),
+                    __RequestVerificationToken: $("input[name='__RequestVerificationToken']").val()
+                },
+                type: 'POST',
+                //contentType: 'application/json; charset=utf-8'
+            })
+            .done(function (data) {
+                if (data == 'ok') {
+                    hideCreatePanel();
+                    location.reload();
+                } else {
+                    alert('Result: ' + data);
+                }       
+            })
+            .fail(function () {
+                alert('Error occured.');
+            })
+        }
+
+        function sendDelete(id) {
+            if(confirm('Are you sure you want to delete this item?')) {
+                $.ajax({
+                    url: '/Todo/Delete',
+                    data: {
+                        id: id,
+                        __RequestVerificationToken: $("input[name='__RequestVerificationToken']").val()
+                    },
+                    type: 'POST',
+                    //contentType: 'application/json; charset=utf-8'
+                })
+                .done(function (data) {
+                    location.reload();   
+                })
+            
+            }
+        }
+
+        function markComplete(id) {     
+                $.ajax({
+                    url: '/Todo/MarkComplete',
+                    data: {
+                        id: id,
+                        __RequestVerificationToken: $("input[name='__RequestVerificationToken']").val()
+                    },
+                    type: 'POST',
+                    //contentType: 'application/json; charset=utf-8'
+                })
+                .done(function (data) {
+                    location.reload();
+                })
+        }
+    </script>
+}

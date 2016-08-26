@@ -1,0 +1,11 @@
+@model MvcMovie.Models.TodoList.TodoItem
+
+<tr data-id="@Model.ID" data-complete="@Model.Completed" class="todo-item">
+    <td>
+        @Html.DisplayFor(modelItem => modelItem.Content)
+    </td>
+    <td>
+        <a href="#" onclick="markComplete(@Model.ID)">Done</a> |
+        <a href="#" onclick="sendDelete(@Model.ID)">Delete</a>
+    </td>
+</tr>
