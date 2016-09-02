@@ -1,0 +1,115 @@
+
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>User Manager</h2>
+<form id="FilterForm" class="form-inline">
+    <p>
+        <label class="control-label">Username:</label> <input type="text" name="username" class="form-control">
+        <input type="button" id="FilterButton" value="Filter" class="btn btn-primary" />
+    </p>
+</form>
+
+@await Html.PartialAsync("Create", new UserManager.Models.User())
+
+
+<div id="UserListTable">
+
+</div>
+
+
+@section scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script type="text/javascript">
+        (function ($) {
+            $('#CreateSave').click(function (e) {
+                console.log("save");
+                $("#CreateForm").validate();
+                if ($('#CreateForm').valid()) {
+
+                    $.ajax({
+                        url: '/UserManager/Create',
+                        data: $('#CreateForm').serialize(),
+                        type: 'POST',
+                        //contentType: 'application/json; charset=utf-8'
+                    })
+                    .done(function (data) {
+                        if (data.result == 'ok') {
+                            $('#CreateModal').modal('hide');
+                            $("#FilterForm")[0].reset();
+                            reloadList();
+                            alert("New User Created!");
+                        } else {
+                            var errors = data.errors.join(" ");
+                            alert("Error: " + errors);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error occured.');
+                    })
+                }
+
+            });
+
+            $('#CreateModal').on('hidden.bs.modal', function () {
+                clearFields();
+            })
+
+            function clearFields() {
+                $("#CreateForm")[0].reset();
+                $("#CreateForm").resetValidation();
+                //$("#CreateForm").trigger('reset.unobtrusiveValidation');
+            }
+
+            //re-set all client validation given a jQuery selected form or child
+            $.fn.resetValidation = function () {
+
+                var $form = this.closest('form');
+
+                //reset jQuery Validate's internals
+                $form.validate().resetForm();
+
+                //reset unobtrusive validation summary, if it exists
+                $form.find("[data-valmsg-summary=true]")
+                    .removeClass("validation-summary-errors")
+                    .addClass("validation-summary-valid")
+                    .find("ul").empty();
+
+                //reset unobtrusive field level, if it exists
+                $form.find("[data-valmsg-replace]")
+                    .removeClass("field-validation-error")
+                    .addClass("field-validation-valid")
+                    .empty();
+
+                return $form;
+            };
+
+            function reloadList(parameters) {
+                $.ajax({
+                    url: '/UserManager/UserList',
+                    data: parameters,
+                    type: 'GET',
+                    //contentType: 'application/json; charset=utf-8'
+                })
+                .done(function (data) {
+                    $("#UserListTable").html(data);
+                })
+            }
+
+            $("#FilterButton").click(function () {
+                reloadList($("#FilterForm").serialize());
+            })
+
+            $(function () {
+                reloadList();
+            });
+
+        })(jQuery);
+
+        
+
+</script>
+}

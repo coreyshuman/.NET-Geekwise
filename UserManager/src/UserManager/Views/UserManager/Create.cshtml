@@ -1,0 +1,83 @@
+@model UserManager.Models.User
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#CreateModal">
+    Create New User
+</button>
+
+<!-- Create Modal -->
+<div class="modal fade" id="CreateModal" tabindex="-1" role="dialog" aria-labelledby="CreateModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Create New User</h4>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Create" id="CreateForm">
+                    <div class="form-horizontal">
+                        <h4>User</h4>
+                        <hr />
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="col-md-2 control-label"></label>
+                            <div class="col-md-10">
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="LastName" class="col-md-2 control-label"></label>
+                            <div class="col-md-10">
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="MiddleInitial" class="col-md-2 control-label"></label>
+                            <div class="col-md-10">
+                                <input asp-for="MiddleInitial" class="form-control" />
+                                <span asp-validation-for="MiddleInitial" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="BirthDate" class="col-md-2 control-label"></label>
+                            <div class="col-md-10">
+                                <input asp-for="BirthDate" class="form-control" />
+                                <span asp-validation-for="BirthDate" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Email" class="col-md-2 control-label"></label>
+                            <div class="col-md-10">
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger" />
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="Phone" class="col-md-2 control-label"></label>
+                            <div class="col-md-10">
+                                <input asp-for="Phone" class="form-control" />
+                                <span asp-validation-for="Phone" class="text-danger" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="CreateSave" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
