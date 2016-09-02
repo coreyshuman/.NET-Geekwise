@@ -25,7 +25,7 @@ namespace UserManager.Controllers
         }
 
         // GET: UserManager/UserList
-        public async Task<IActionResult> UserList(string username)
+        public async Task<IActionResult> UserList(string username, Nullable<DateTime> startdate, Nullable<DateTime> enddate)
         {
             var users = from m in _context.Users
                          select m;
@@ -34,7 +34,20 @@ namespace UserManager.Controllers
             {
                 users = users.Where(s => s.FirstName.Contains(username) || s.LastName.Contains(username));
             }
-            
+
+            if (startdate.HasValue)
+            {
+                users = users.Where(s => s.BirthDate >= startdate.Value);
+            }
+
+            if (enddate.HasValue)
+            {
+                if(!startdate.HasValue || (startdate.HasValue && startdate.Value < enddate.Value))
+                {
+                    users = users.Where(s => s.BirthDate <= enddate.Value);
+                }
+            }
+
             return PartialView(await users.ToListAsync());
         }
 
@@ -96,7 +109,7 @@ namespace UserManager.Controllers
             {
                 return NotFound();
             }
-            return View(user);
+            return PartialView(user);
         }
 
         // POST: UserManager/Edit/5
@@ -129,9 +142,13 @@ namespace UserManager.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return Json(new { result = "ok" });
             }
-            return View(user);
+            var errorList = (from item in ModelState.Values
+                             from error in item.Errors
+                             select error.ErrorMessage).ToList();
+
+            return Json(new { result = "error", errors = errorList });
         }
 
         // GET: UserManager/Delete/5

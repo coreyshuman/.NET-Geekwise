@@ -8,12 +8,36 @@
 <form id="FilterForm" class="form-inline">
     <p>
         <label class="control-label">Username:</label> <input type="text" name="username" class="form-control">
+        <label class="control-label">Date Start:</label> <input type="text" name="startdate" id="startdate" class="form-control">
+        <label class="control-label">Date End:</label> <input type="text" name="enddate" id="enddate" class="form-control">
         <input type="button" id="FilterButton" value="Filter" class="btn btn-primary" />
     </p>
 </form>
 
 @await Html.PartialAsync("Create", new UserManager.Models.User())
 
+<!-- Edit Modal -->
+<div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="EditModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Edit User</h4>
+            </div>
+            <div class="modal-body">
+                <div id="EditModalContent">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="EditSave" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="UserListTable">
 
@@ -24,7 +48,9 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
 <script type="text/javascript">
-        (function ($) {
+    (function ($) {
+        var currentId = 0;
+
             $('#CreateSave').click(function (e) {
                 console.log("save");
                 $("#CreateForm").validate();
@@ -53,6 +79,37 @@
                 }
 
             });
+
+            $('#EditSave').click(function (e) {
+                console.log("edit save");
+                $("#EditForm").validate();
+
+                if ($('#EditForm').valid()) {
+
+                    $.ajax({
+                        url: '/UserManager/Edit/' + currentId,
+                        data: $('#EditForm').serialize(),
+                        type: 'POST',
+                        //contentType: 'application/json; charset=utf-8'
+                    })
+                    .done(function (data) {
+                        if (data.result == 'ok') {
+                            $('#EditModal').modal('hide');
+                            reloadList($("#FilterForm").serialize());
+                            alert("User Update!");
+                        } else {
+                            var errors = data.errors.join(" ");
+                            alert("Error: " + errors);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error occured.');
+                    })
+                }
+
+            });
+
+            
 
             $('#CreateModal').on('hidden.bs.modal', function () {
                 clearFields();
@@ -87,6 +144,35 @@
                 return $form;
             };
 
+            function openEditModal(ref) {
+                var id = $(ref).data("id");
+                currentId = id;
+                $.ajax({
+                    url: '/UserManager/Edit',
+                    data: {
+                        id: id
+                    },
+                    type: 'GET',
+                    //contentType: 'application/json; charset=utf-8'
+                })
+                .done(function (data) {
+                    $("#EditModalContent").html(data);
+                    $('#EditModal').modal('show');
+                    fnValidateDynamicContent();
+                })
+                .error(function () {
+                    alert("User Not Found.");
+                })
+            }
+
+            function fnValidateDynamicContent() {
+                var currForm = $("#EditForm");
+                currForm.removeData("validator");
+                currForm.removeData("unobtrusiveValidation");
+                $.validator.unobtrusive.parse(currForm[0]);
+                currForm.validate(); // This line is important and added for client side validation to trigger, without this it didn't fire client side errors.
+            }
+
             function reloadList(parameters) {
                 $.ajax({
                     url: '/UserManager/UserList',
@@ -96,12 +182,41 @@
                 })
                 .done(function (data) {
                     $("#UserListTable").html(data);
+                    $(".EditButton").on("click", function () {
+                        openEditModal(this);
+                    });
                 })
             }
 
             $("#FilterButton").click(function () {
                 reloadList($("#FilterForm").serialize());
-            })
+            });
+
+            var startdate = $("#startdate");
+            var enddate = $("#enddate");
+
+            startdate.change(function () {
+                console.log("sd change")
+                if (enddate.val() != "") {
+                    console.log(enddate.val())
+                    var ed = new Date(enddate.val());
+                    var sd = new Date(startdate.val());
+                    console.log(ed, sd)
+                    if (ed < sd) {
+                        enddate.val("");
+                    }
+                }
+            });
+
+            enddate.change(function () {
+                if (startdate.val() != "") {
+                    var ed = new Date(enddate.val());
+                    var sd = new Date(startdate.val());
+                    if (ed < sd) {
+                        startdate.val("");
+                    }
+                }
+            });
 
             $(function () {
                 reloadList();
